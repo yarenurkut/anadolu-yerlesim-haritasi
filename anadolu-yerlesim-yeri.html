@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Harita Görseli Ayarlayıcı</title>
+    <meta charset="utf-8" />
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnEqNiDm3Q3haSC8tS7NOQ6950VF45vUs"></script>
+    <style>
+      html, body, #map {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: white;
+        padding: 10px;
+        z-index: 9999;
+        font-family: sans-serif;
+        font-size: 14px;
+        line-height: 1.4em;
+      }
+      label { display: block; margin-top: 5px; }
+      #output { margin-top: 10px; white-space: pre-wrap; font-family: monospace; background: #f4f4f4; padding: 6px; border: 1px solid #ccc; }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <button onclick="logBounds()">📋 Koordinatları Kopyala</button>
+      <div id="output">Koordinatlar burada görünecek...</div>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+      let overlay;
+
+      const map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 40.96, lng: 29.2 },
+        zoom: 11,
+        mapTypeId: 'hybrid'
+      });
+
+      const initialBounds = {
+        north: 41.083855,
+        south: 40.837317,
+        east: 29.500359,
+        west: 28.918372
+      };
+
+      function drawOverlay(bounds) {
+        if (overlay) overlay.setMap(null);
+        overlay = new google.maps.GroundOverlay(
+          "https://i.imgur.com/V63jppz.png?ts=" + Date.now(),
+          bounds,
+          { opacity: 0.65 }
+        );
+        overlay.setMap(map);
+      }
+
+      function updateOutput(bounds) {
+        const formatted = {
+          north: bounds.north.toFixed(6),
+          south: bounds.south.toFixed(6),
+          east: bounds.east.toFixed(6),
+          west: bounds.west.toFixed(6)
+        };
+        document.getElementById("output").textContent = JSON.stringify(formatted, null, 2);
+      }
+
+      function logBounds() {
+        const text = document.getElementById("output").textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Koordinatlar panoya kopyalandı!\n\n" + text);
+        });
+      }
+
+      drawOverlay(initialBounds);
+      updateOutput(initialBounds);
+    </script>
+  </body>
+</html>
